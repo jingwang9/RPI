@@ -1,0 +1,48 @@
+#include <stdio.h>
+#include <unistd.h>
+#include <wiringPi.h>
+#include <wiringPiI2C.h>
+
+static int pin_A, pin_B, pin_E;
+
+void set_L293D(int value)
+{
+        if(value == 0) {
+                digitalWrite(pin_A, HIGH);
+                digitalWrite(pin_B, LOW);
+                digitalWrite(pin_E, LOW);
+        } else if(value > 0){
+                digitalWrite(pin_A, HIGH);
+                digitalWrite(pin_B, LOW);
+                analogWrite(pin_E, value);
+        } else if(value < 0){
+                digitalWrite(pin_A, LOW);
+                digitalWrite(pin_B, HIGH);
+                analogWrite(pin_E, -value);
+        }
+}
+
+void init_L293D(int pinA, int pinB, int pinE)
+{
+        pin_A = pinA;
+        pin_B = pinB;
+        pin_E = pinE;
+        wiringPiSetup();
+        pinMode(pin_A, OUTPUT);
+        pinMode(pin_B, OUTPUT);
+        pinMode(pin_E, OUTPUT);
+}
+
+int main(int argc, char**argv)
+{
+        int a[]={0,100,170,255,0,-100,-170,-255};
+        int i;
+        init_L293D(4, 5, 6);
+        while(1) {
+                for(i=0;i<sizeof(a)/sizeof(a[0]);i++) {
+                        set_L293D(a[i]);
+                        sleep(2);
+                }
+        }
+        return 0;
+}
